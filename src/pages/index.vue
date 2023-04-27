@@ -4,7 +4,7 @@
     <div v-for="(list, index) in moviesList.list" class="card col-6" style="width: 18rem" :key="index">
       <img :src="list.Poster" alt="" class="card-img-top"  />
       <div class="card-body">
-        <h5 class="card-title">{{list.Title }}</h5>
+        <h5 class="card-title red">{{list.Title }}</h5>
         <p class="card-text">
           {{list.Plot }}
         </p>
@@ -16,7 +16,7 @@
   <div class="card" style="width: 18rem;">
     <img :src="movies.list.Poster" alt="" class="card-img-top" />
     <div class="card-body">
-      <h5 class="card-title"> {{ movies.list.Title }}</h5>
+      <h5 class="card-title "> {{ movies.list.Title }}</h5>
       <p class="card-text">{{ movies.list.Plot }}
       </p>
       <a href="#" class="btn btn-primary">Go somewhere</a>

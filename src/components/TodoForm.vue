@@ -1,5 +1,5 @@
 <template>
-  <h1>일정상세페이지</h1>
+  <h1 v-if="editing">일정상세페이지</h1>
   <div v-if="loading">Loading...</div>
   <form v-else @submit.prevent="onSave">
     <div class="row">
@@ -7,9 +7,10 @@
         <div class="form-group">
           <label>일정명: </label>
           <input type="text" class="form-control" v-model="todo.subject" />
+          <div v-if="subjectError" class="red">{{ subjectError }}</div>
         </div>
       </div>
-      <div class="col-6">
+      <div v-if="editing" class="col-6">
         <div class="form-group">
           <label>수행상태: </label>
           <button
@@ -23,12 +24,29 @@
         </div>
       </div>
     </div>
-    <button class="btn btn-primary" :disabled="!todoUpdate">저장</button>
+    <div class="row">
+      <div class="col-12">
+        <div class="form-group">
+          <label>일정내용:</label
+          ><textarea
+            cols="30"
+            rows="10"
+            v-model="todo.body"
+            class="form-control"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" :disabled="!todoUpdate">
+      {{ editing ? "저장" : "등록" }}
+    </button>
     <button class="btn btn-outline-dark ms-2" @click="moveTodoListPage">
       취소
     </button>
   </form>
-  <Toast v-if="showToast" :message="toastMessage" :type="toastAlertType" />
+  <transition name="fade">
+    <Toast v-if="showToast" :message="toastMessage" :type="toastAlertType" />
+  </transition>
   <div id="mango">🍳🥙🥟🍌🍋멍멍이</div>
 </template>
 <script>
@@ -46,10 +64,15 @@ export default {
     Toast,
   },
   setup(props) {
+    const subjectError = ref("null");
     const originalTodo = ref(null);
     const router = useRouter();
     const route = useRoute();
-    const todo = ref(null);
+    const todo = ref({
+      subject: "",
+      completed: false,
+      body: "",
+    });
     const todoId = route.params.id;
     const url = "http://localhost:8080/todos/";
     const loading = ref(false);
@@ -80,22 +103,50 @@ export default {
       todo.value.completed = !todo.value.completed;
     };
     const onSave = () => {
-      axios
-        .put(`${url}${todoId}`, {
-          subject: todo.value.subject,
-          complete: todo.value.completed,
-        })
-        .then((res) => {
-          originalTodo.value = { ...res.data };
-          triggerToast("등록이 완료되었습니다", "info");
-        })
-        .catch((err) => {
-          console.error(err);
-          triggerToast(
-            "일시적으로 오류가 발생하였습니다. 잠시후 다시 이용 해주세요.",
-            "danger"
-          );
-        });
+      let response;
+      const data = {
+        subject: todo.value.subject,
+        completed: todo.value.completed,
+        body: todo.value.body,
+      };
+      subjectError.value = "";
+      if (!todo.value.subject) {
+        subjectError.value = "일정명은 필수입력사항 입니다";
+      }
+      if (props.editing) {
+        //editing 일때 (기존일정 수정 put)
+        axios
+          .put(`${url}${todoId}`, data)
+          .then((res) => {
+            originalTodo.value = { ...res.data };
+            triggerToast("등록이 완료되었습니다", "info");
+          })
+          .catch((err) => {
+            console.error(err);
+            triggerToast(
+              "일시적으로 오류가 발생하였습니다. 잠시후 다시 이용 해주세요.",
+              "danger"
+            );
+          });
+      } else {
+        //editing이 아닐때 (새일정등록 create)
+        axios
+          .post(`${url}`, data)
+          .then((res) => {
+            response = res;
+            console.log(response);
+            triggerToast("등록이 완료되었습니다", "info");
+            todo.value.subject = "";
+            todo.value.body = "";
+          })
+          .catch((err) => {
+            console.error(err);
+            triggerToast(
+              "일시적으로 오류가 발생하였습니다. 잠시후 다시 이용 해주세요.",
+              "danger"
+            );
+          });
+      }
     };
     const getTodo = () => {
       loading.value = true;
@@ -127,8 +178,25 @@ export default {
       triggerToast,
       showToast,
       toastMessage,
+      subjectError,
     };
   },
 };
 </script>
-<style></style>
+<style scoped>
+.red {
+  color: red;
+}
+.fade-enter-from,.fader-leave-to{
+  opacity: 0;
+  transform: translateY(-30px);
+}
+.fade-enter-active,.fade-leave-active{
+  transition:all 1s ease;
+}
+.fade-enter-to,.fade-leave-from{
+  opacity: 1;
+  transform: translateY(0px);
+}
+
+</style>

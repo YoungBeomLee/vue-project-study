@@ -36,7 +36,9 @@
       </ul>
     </nav>
   </div>
-  <Toast v-if="showToast" :message="toastMessage" :type="toastAlertType" />
+  <transition name="fade">
+    <Toast v-if="showToast" :message="toastMessage" :type="toastAlertType" />
+  </transition>
 </template>
 
 <script>
@@ -198,5 +200,16 @@ export default {
 .page-link {
   background: pink;
   color: black;
+}
+.fade-enter-from,.fader-leave-to{
+  opacity: 0;
+  transform: translateY(-30px);
+}
+.fade-enter-active,.fade-leave-active{
+  transition:all 1s ease;
+}
+.fade-enter-to,.fade-leave-from{
+  opacity: 1;
+  transform: translateY(0px);
 }
 </style>

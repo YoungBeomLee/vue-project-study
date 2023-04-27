@@ -9,7 +9,5 @@ export default {
 }
 </script>
 <style>
-.red{
-    color:red;
-}
+
 </style>
