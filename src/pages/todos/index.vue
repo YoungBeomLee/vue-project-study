@@ -129,9 +129,9 @@ export default {
         });
     };
 
-    const deleteTodo = (index) => {
+    const deleteTodo = (id) => {
       error.value = "";
-      const id = index;
+      
       axios
         .delete("http://localhost:8080/todos/" + id)
         .then(() => {

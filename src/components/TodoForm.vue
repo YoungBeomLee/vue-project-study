@@ -4,22 +4,18 @@
   <form v-else @submit.prevent="onSave">
     <div class="row">
       <div class="col-6">
-        <div class="form-group">
-          <label>일정명: </label>
-          <input type="text" class="form-control" v-model="todo.subject" />
-          <div v-if="subjectError" class="red">{{ subjectError }}</div>
-        </div>
+        <Input label="일정명" :error="subjectError"/>
       </div>
       <div v-if="editing" class="col-6">
         <div class="form-group">
           <label>수행상태: </label>
           <button
             class="btn"
-            :class="todo.completed ? 'btn-success' : 'btn-danger'"
+            :class="(todo.completed) ? ('btn-success') : ('btn-danger')"
             type="button"
             @click="toggleTodoStatus"
           >
-            {{ todo.completed ? "완료" : "미완료" }}
+            {{ (todo.completed) ? ("완료") : ("미완료") }}
           </button>
         </div>
       </div>
